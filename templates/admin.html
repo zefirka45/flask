@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админ-панель</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: #2c3e50;
+      color: white;
+      padding: 1.5rem 0;
+      height: 100vh;
+      position: fixed;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      padding: 0 1.5rem 1.2rem;
+      font-size: 1.3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin: 0.4rem 0;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: #ecf0f1;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background: #34495e;
+    }
+
+    /* Main content */
+    .main-content {
+      margin-left: 240px;
+      flex: 1;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .header-btn {
+      padding: 0.4rem 0.9rem;
+      border: none;
+      border-radius: 4px;
+      background: #3498db;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .header-btn:hover {
+      background: #2980b9;
+    }
+
+    .logout-link {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .logout-link:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .content-area {
+      padding: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      margin-bottom: 1.5rem;
+      font-size: 1.6rem;
+      color: #2c3e50;
+    }
+
+    /* Общие стили блоков */
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #f1f3f5;
+      font-weight: 600;
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.7rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-edit { background: #f39c12; color: white; }
+    .btn-delete { background: #e74c3c; color: white; }
+    .btn-add { background: #2ecc71; color: white; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+        padding: 1rem 0;
+      }
+      .sidebar h2,
+      .sidebar a span {
+        display: none;
+      }
+      .sidebar a::before {
+        content: "☰";
+        display: block;
+        text-align: center;
+      }
+      .main-content {
+        margin-left: 60px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>Админ-панель</h2>
+    <ul>
+      <li><a href="#dashboard" class="active"><span>📊 Панель</span></a></li>
+      <li><a href="#tickets"><span>📩 Заявки</span></a></li>
+      <li><a href="#users"><span>👥 Пользователи</span></a></li>
+      <li><a href="#categories"><span>📂 Категории</span></a></li>
+      <li><a href="#settings"><span>⚙️ Настройки</span></a></li>
+      <li><a href="#stats"><span>📈 Статистика</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <header>
+      <h1 id="pageTitle">Админ-панель</h1>
+      <div class="header-actions">
+        <a href="/dashboard" class="header-btn" >Назад</a>
+        <a href="/create-ticket" class="header-btn">Создать заявку</a>
+        <a href="/logout" class="logout-link">Выйти</a>
+      </div>
+    </header>
+
+    <div class="content-area" id="contentArea">
+      <!-- Content loaded by JS or static -->
+      <h2 class="page-title">Панель управления</h2>
+
+      <div class="card">
+        <h3>Быстрые действия</h3>
+        <p>Выберите раздел в меню слева для управления системой.</p>
+      </div>
+
+      <div class="card">
+        <h3>Статус системы</h3>
+        <p>✅ Все сервисы работают нормально</p>
+        <p>🕒 Последнее обновление: 17 декабря 2025 г.</p>
+      </div>
+    </div>
+  </div>
+  <div class="users-container" id="usersContainer">
+    <!-- Пользователи загружаются сюда -->
+  </div>
+  <script>
+  const DELETE_URL = '/admin-panel/delete-user';
+  // Вспомогательная функция для экранирования HTML
+  function escapeHtml(text) {
+    if (text == null) return '—';
+    if (typeof text !== 'string') return String(text);
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Загрузка пользователей с API
+  async function loadUsers() {
+    const container = document.getElementById('usersTableContainer');
+    if (!container) return;
+
+    try {
+      const response = await fetch('/admin-panel/read-users');
+      if (!response.ok) throw new Error('Сервер вернул ошибку: ' + response.status);
+      const users = await response.json();
+
+      if (!Array.isArray(users)) {
+        throw new Error('Некорректный формат: ожидается массив');
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Телефон</th>
+              <th>Роль</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      if (users.length === 0) {
+        html += `<tr><td colspan="6" style="text-align:center;color:#777;">Пользователей нет</td></tr>`;
+      } else {
+        users.forEach(users => {
+          html += `
+            <tr>
+              <td>${escapeHtml(users.id)}</td>
+              <td>${escapeHtml(users.username)}</td>
+              <td>${escapeHtml(users.email)}</td>
+              <td>${escapeHtml(users.phone || '')}</td>
+              <td>${escapeHtml(users.role || 'Пользователь')}</td>
+              <td>
+                <button class="btn-sm btn-edit" onclick="editUser(${users.id})">Редактировать</button>
+                <button class="btn-sm btn-delete" onclick="deleteUser(${users.id})">Удалить</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    } catch (error) {
+      console.error('Ошибка загрузки пользователей:', error);
+      container.innerHTML = `<p style="color:#e74c3c;">❌ Не удалось загрузить пользователей: ${escapeHtml(error.message)}</p>`;
+    }
+  }
+
+  // Заглушки для действий
+  function showAddUserModal() {
+    alert('Форма добавления пользователя (в разработке)');
+  }
+
+  function editUser(id) {
+    alert(`Редактирование пользователя ID: ${id}`);
+  }
+
+    async function deleteUser(id) {
+    if (!confirm(`Вы уверены, что хотите удалить пользователя ID ${id}?`)) {
+        return; // отмена
+    }
+
+    try {
+        const response = await fetch(`/admin-panel/delete-user/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+        alert(`Пользователь ID ${id} успешно удалён`);
+        loadUsers(); // обновить список
+        } else {
+        const errorData = await response.json().catch(() => ({}));
+        alert(`Ошибка: ${errorData.error || 'Не удалось удалить пользователя'}`);
+        }
+    } catch (error) {
+        console.error('Ошибка сети:', error);
+        alert('Ошибка подключения к серверу');
+    }
+    }
+
+  // Старая функция renderTasks (остаётся без изменений)
+  function renderTasks(tasks) {
+    const container = document.getElementById('userContainer');
+    if (!tasks || tasks.length === 0) {
+      container.innerHTML = '<p style="text-align:center;color:#777;">Заявок нет</p>';
+      return;
+    }
+
+    const html = tasks.map(task => {
+      let actionButtons = '';
+      if (task.status === 'new') {
+        actionButtons = `
+          <button class="btn btn-take" onclick="takeTask(${task.id})">Взять в работу</button>
+          <button class="btn btn-close" onclick="closeTask(${task.id})">Закрыть</button>
+        `;
+      } else if (task.status === 'in_progress') {
+        actionButtons = `
+          <button class="btn btn-close" onclick="closeTask(${task.id})">Закрыть</button>
+        `;
+      } else {
+        actionButtons = `<button class="btn btn-disabled" disabled>Действия недоступны</button>`;
+      }
+
+      return `
+        <div class="request-card">
+          <div class="request-header">
+            <div class="request-id">Заявка №${escapeHtml(task.id)}</div>
+            <div class="request-status ${getStatusClass(task.status)}">
+              ${escapeHtml(getStatusLabel(task.status))}
+            </div>
+          </div>
+          <div class="request-body">
+            <p><strong>Категория:</strong> ${escapeHtml(task.category || '—')}</p>
+            <p><strong>Тема:</strong> ${escapeHtml(task.subject || '—')}</p>
+            <p><strong>Описание:</strong> ${escapeHtml(task.description || '—')}</p>
+            <p><strong>Автор:</strong> ${escapeHtml(task.author || '—')}</p>
+            <p><strong>Дата:</strong> ${task.date ? new Date(task.date).toLocaleDateString('ru-RU') : '—'}</p>
+          </div>
+          <div class="actions">
+            ${actionButtons}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = html;
+  }
+
+  // Вспомогательные функции для статусов (если не определены — добавим заглушки)
+  function getStatusClass(status) {
+    const classes = {
+      new: 'status-new',
+      in_progress: 'status-in-progress',
+      closed: 'status-closed'
+    };
+    return classes[status] || 'status-unknown';
+  }
+
+  function getStatusLabel(status) {
+    const labels = {
+      new: 'Новая',
+      in_progress: 'В работе',
+      closed: 'Закрыта'
+    };
+    return labels[status] || 'Неизвестно';
+  }
+
+  // Обработчик навигации
+  document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('href').substring(1);
+      loadSection(target);
+      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Основная функция загрузки разделов
+  function loadSection(section) {
+    const title = document.getElementById('pageTitle');
+    const content = document.getElementById('contentArea');
+
+    switch(section) {
+      case 'dashboard':
+        title.textContent = 'Админ-панель';
+        content.innerHTML = `
+          <h2 class="page-title">Панель управления</h2>
+          <div class="card">
+            <h3>Быстрые действия</h3>
+            <p>Выберите раздел в меню слева для управления системой.</p>
+          </div>
+          <div class="card">
+            <h3>Статус системы</h3>
+            <p>✅ Все сервисы работают нормально</p>
+            <p>🕒 Последнее обновление: 17 декабря 2025 г.</p>
+          </div>
+        `;
+        break;
+
+      case 'tickets':
+        title.textContent = 'Управление заявками';
+        content.innerHTML = `
+          <h2 class="page-title">Заявки</h2>
+          <div class="card">
+            <p>Интеграция с API заявок (как в вашем исходном шаблоне). Можно вставить сюда тот же код с фильтрацией и карточками.</p>
+            <button class="header-btn" onclick="alert('Загрузка заявок...')">Загрузить заявки</button>
+          </div>
+        `;
+        break;
+
+      case 'users':
+        title.textContent = 'Пользователи';
+        content.innerHTML = `
+          <h2 class="page-title">Пользователи</h2>
+          <div class="card">
+            <button class="btn-add" onclick="showAddUserModal()">+ Добавить пользователя</button>
+            <div id="usersTableContainer">
+              <p>Загрузка пользователей...</p>
+            </div>
+          </div>
+        `;
+        loadUsers(); // <<<<< КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: загружаем данные
+        break;
+
+      case 'categories':
+        title.textContent = 'Категории заявок';
+        content.innerHTML = `
+          <h2 class="page-title">Категории</h2>
+          <div class="card">
+            <button class="btn-add">+ Добавить категорию</button>
+            <ul style="list-style: none;">
+              <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">Проблемы с оборудованием <button class="btn-sm btn-edit">Изменить</button></li>
+              <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">Доступ к системе <button class="btn-sm btn-edit">Изменить</button></li>
+              <li style="padding: 0.5rem 0;">Консультация <button class="btn-sm btn-edit">Изменить</button></li>
+            </ul>
+          </div>
+        `;
+        break;
+
+      case 'settings':
+        title.textContent = 'Настройки';
+        content.innerHTML = `
+          <h2 class="page-title">Системные настройки</h2>
+          <div class="card">
+            <form>
+              <p><label><input type="checkbox" checked> Уведомления по email</label></p>
+              <p><label>Адрес поддержки: <input type="email" value="support@company.ru" style="width:250px;padding:0.3rem;"></label></p>
+              <p><label>Таймзона: <select><option>Europe/Moscow</option></select></label></p>
+              <button class="header-btn" type="button">Сохранить</button>
+            </form>
+          </div>
+        `;
+        break;
+
+      case 'stats':
+        title.textContent = 'Статистика';
+        content.innerHTML = `
+          <h2 class="page-title">Аналитика</h2>
+          <div class="card">
+            <p>📊 Новых заявок за неделю: <strong>27</strong></p>
+            <p>🔄 В работе: <strong>8</strong></p>
+            <p>✅ Закрыто: <strong>112</strong></p>
+            <p>👥 Активных пользователей: <strong>43</strong></p>
+          </div>
+        `;
+        break;
+
+      default:
+        loadSection('dashboard');
+    }
+  }
+</script>
+
+</body>
+</html>

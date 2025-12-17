@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Панель заявок</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .header-btn {
+      padding: 0.4rem 0.9rem;
+      border: none;
+      border-radius: 4px;
+      background: #3498db;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .header-btn:hover {
+      background: #2980b9;
+    }
+
+    .logout-link {
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .logout-link:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .controls {
+      padding: 1.5rem;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box input {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-width: 200px;
+    }
+
+    .filter-box select {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .requests-container {
+      padding: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .request-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 1.2rem;
+      transition: box-shadow 0.2s;
+    }
+
+    .request-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .request-id {
+      font-weight: bold;
+      color: #2980b9;
+    }
+
+    .request-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-new { background: #e1f5fe; color: #0288d1; }
+    .status-in-progress { background: #fff8e1; color: #ffa000; }
+    .status-closed { background: #e8f5e9; color: #388e3c; }
+
+    .request-body p {
+      margin-bottom: 0.6rem;
+      line-height: 1.5;
+    }
+
+    .request-footer {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 0.8rem;
+    }
+
+    .actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.4rem 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .btn-take { background: #3498db; color: white; }
+    .btn-close { background: #2ecc71; color: white; }
+    .btn-disabled { background: #bdc3c7; cursor: not-allowed; }
+
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-box input,
+      .filter-box select {
+        width: 100%;
+      }
+
+      .header-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .requests-container {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Панель управления заявками</h1>
+    <div class="header-actions">
+      <a href="/admin-panel" class="header-btn">Управение</a>
+      <a href="/create-ticket" class="header-btn">Создать заявку</a>
+      <a href="/logout" class="logout-link">Выйти</a>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Поиск по теме или описанию...">
+    </div>
+    <div class="filter-box">
+      <select id="statusFilter">
+        <option value="all">Все статусы</option>
+        <option value="new" selected>Новые</option>
+        <option value="in_progress">В работе</option>
+        <option value="closed">Закрытые</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="requests-container" id="requestsContainer">
+    <!-- Заявки загружаются сюда -->
+  </div>
+
+  <script>
+    const API_URL = '/dashboard/tasks';
+    const UPDATE_URL = '/dashboard/update';
+
+    let allTasks = [];
+
+    async function fetchTasks() {
+      const container = document.getElementById('requestsContainer');
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        allTasks = data.tasks || [];
+        applyFilters();
+        //renderTasks(allTasks);
+      } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+        container.innerHTML = '<p style="text-align:center;color:red;">Не удалось загрузить заявки</p>';
+      }
+    }
+
+    function getStatusClass(status) {
+      if (status === 'new') return 'status-new';
+      if (status === 'in_progress') return 'status-in-progress';
+      if (status === 'closed') return 'status-closed';
+      return '';
+    }
+
+    function getStatusLabel(status) {
+      if (status === 'new') return 'Новая';
+      if (status === 'in_progress') return 'В работе';
+      if (status === 'closed') return 'Закрыта';
+      return status;
+    }
+
+    function escapeHtml(text) {
+      if (typeof text !== 'string') return text || '—';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function renderTasks(tasks) {
+      const container = document.getElementById('requestsContainer');
+      if (!tasks || tasks.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#777;">Заявок нет</p>';
+        return;
+      }
+
+      const html = tasks.map(task => {
+        let actionButtons = '';
+        if (task.status === 'new') {
+          actionButtons = `
+            <button class="btn btn-take" onclick="takeTask(${task.id})">Взять в работу</button>
+            <button class="btn btn-close" onclick="closeTask(${task.id})">Закрыть</button>
+          `;
+        } else if (task.status === 'in_progress') {
+          actionButtons = `
+            <button class="btn btn-close" onclick="closeTask(${task.id})">Закрыть</button>
+          `;
+        } else {
+          actionButtons = `<button class="btn btn-disabled" disabled>Действия недоступны</button>`;
+        }
+
+        return `
+          <div class="request-card">
+            <div class="request-header">
+              <div class="request-id">Заявка №${escapeHtml(task.id)}</div>
+              <div class="request-status ${getStatusClass(task.status)}">
+                ${escapeHtml(getStatusLabel(task.status))}
+              </div>
+            </div>
+            <div class="request-body">
+              <p><strong>Категория:</strong> ${escapeHtml(task.category || '—')}</p>
+              <p><strong>Тема:</strong> ${escapeHtml(task.subject || '—')}</p>
+              <p><strong>Описание:</strong> ${escapeHtml(task.description || '—')}</p>
+              <p><strong>Автор:</strong> ${escapeHtml(task.author || '—')}</p>
+              <p><strong>Дата:</strong> ${task.date ? new Date(task.date).toLocaleDateString('ru-RU') : '—'}</p>
+            </div>
+            <div class="actions">
+              ${actionButtons}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    async function takeTask(id) {
+      try {
+        const response = await fetch(UPDATE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, status: 'in_progress' })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          await fetchTasks(); // Обновить список
+        } else {
+          alert(result.error || 'Не удалось взять заявку в работу');
+        }
+      } catch (err) {
+        console.error('Ошибка takeTask:', err);
+        alert('Ошибка сети');
+      }
+    }
+
+    async function closeTask(id) {
+      if (!confirm('Закрыть заявку? Это действие нельзя отменить.')) return;
+      try {
+        const response = await fetch(UPDATE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, status: 'closed' })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          await fetchTasks();
+        } else {
+          alert(result.error || 'Не удалось закрыть заявку');
+        }
+      } catch (err) {
+        console.error('Ошибка closeTask:', err);
+        alert('Ошибка сети');
+      }
+    }
+
+    // Фильтрация (опционально — можно удалить, если фильтрация на бэкенде)
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const statusFilter = document.getElementById('statusFilter').value;
+
+      const filtered = allTasks.filter(task => {
+        const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+        const matchesSearch = !searchTerm ||
+          (task.subject && task.subject.toLowerCase().includes(searchTerm)) ||
+          (task.description && task.description.toLowerCase().includes(searchTerm)) ||
+          (task.category && task.category.toLowerCase().includes(searchTerm)) ||
+          (task.author && task.author.toLowerCase().includes(searchTerm));
+        return matchesStatus && matchesSearch;
+      });
+
+      renderTasks(filtered);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+    document.addEventListener('DOMContentLoaded', fetchTasks);
+  </script>
+
+</body>
+</html>
